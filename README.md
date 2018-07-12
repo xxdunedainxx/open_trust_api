@@ -15,4 +15,9 @@ subscription for users - email && or text
 
 groupings of services + features underneath a service 
 
-- db to configure cron jobs 
+- db to configure cron jobs
+
+
+
+REQUIRED LIBRARIES ::
+pymysql

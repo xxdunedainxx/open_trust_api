@@ -34,6 +34,7 @@ CREATE TABLE service(
     service_id int NOT NULL AUTO_INCREMENT,
     name varchar(333),
     when_created DATETIME,
+    description TEXT,
     active int DEFAULT 1,
     status int DEFAULT 1,
     PRIMARY KEY(service_id)
@@ -44,6 +45,7 @@ CREATE TABLE feature(
     name varchar(333),
     when_created DATETIME,
     parent_service int NOT NULL,
+    description TEXT,
     active int DEFAULT 1,
     status int DEFAULT 1,
     PRIMARY KEY(service_id)
