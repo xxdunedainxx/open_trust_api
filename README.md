@@ -21,3 +21,7 @@ groupings of services + features underneath a service
 
 REQUIRED LIBRARIES ::
 pymysql
+flask
+flask_restplus
+flask_cors
+marshmallow

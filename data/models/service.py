@@ -3,7 +3,7 @@ from data.models.feature import Feature, get_all_features_by_service_id,deactiva
 
 class Service:
 
-    def __init__(self,id,name,description,when_created,active,status, features=[]):
+    def __init__(self,id,name,when_created,description,active,status, features=[]):
         self.id=id
         self.name=name
         self.description=description
@@ -22,7 +22,7 @@ class Service:
             'id' : self.id,
             'name' : self.name,
             'description' : self.description,
-            'when_created' : self.when_created,
+            'when_created' : str(self.when_created),
             'active' : self.active,
             'status' : self.status,
             'features' : serialize_features,
@@ -31,7 +31,12 @@ class Service:
 def get_all_services(db):
     GET_ALL_SERVICES="SELECT * FROM service"
 
+
     get_services=db.executeQuery(GET_ALL_SERVICES)
+
+    if get_services == None:
+        return []
+
     serviceObjs=[]
 
     for service in get_services:

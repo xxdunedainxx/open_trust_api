@@ -1,18 +1,22 @@
-#TODO :: install and set up structure for flask apis
-#TODO :: begin to integrate sql db schemas with flask apis
+# TODO :: finish service APIs/  feature APIs / status APIs
+# TODO :: Once these apis are complete, MVP for client can begin
 
+from flask import Flask,send_from_directory
+from flask_cors import CORS
+from api import api
 
 from conf.conf import db
 from data.models.service import Service, new_service, get_service_by_name,get_service_by_id, deactivate_service,reactivate_service, change_service_status
 from data.models.feature import *
 from data.models.status import serve_sprite_path
-#test_get=get_service_by_name("testerrr",db)
-#t=new_service("test", "testing db routines", db)
-t=get_service_by_id(1,db)
-#change_service_status(1, "BROKEN",db)
 
-deactivate_service(1,db)
-p=serve_sprite_path(1,db)
+app = Flask(__name__)
+CORS(app)
+api.init_app(app)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 #features=get_all_features_by_service_id(1,db)
 exit(0)

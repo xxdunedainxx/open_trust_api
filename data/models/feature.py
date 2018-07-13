@@ -2,7 +2,7 @@ from src.util.errorFactory.feature_errors import FeatureDoesNotExist,FeatureName
 
 class Feature:
 
-	def __init__(self,id,name,description,when_created,parent_service,active,status):
+	def __init__(self,id,name,when_created,description,parent_service,active,status):
 		self.id=id
 		self.name=name
 		self.description=description
@@ -16,7 +16,7 @@ class Feature:
 			'id' : self.id,
 			'name' : self.name,
 			'description' : self.description,
-			'when_created' : self.when_created,
+			'when_created' : str(self.when_created),
 			'parent_service' : self.parent_service,
 			'active' : self.active,
 			'status' : self.status
@@ -61,6 +61,9 @@ def get_feature_by_name(service_id,name, db):
 
 def get_all_features_by_service_id(service_id,db):
 	get_features=db.executeQuery("SELECT * FROM feature where parent_service=%s",paramatized=(service_id))
+
+	if get_features == None:
+		return []
 
 	featureObjs=[]
 
