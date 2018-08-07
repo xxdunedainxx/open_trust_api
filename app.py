@@ -1,6 +1,6 @@
 # TODO :: finish service APIs/  feature APIs / status APIs
 # TODO :: Once these apis are complete, MVP for client can begin
-
+# TODO :: EVENT MODEL / EVENT COMMENT MODEL
 from flask import Flask,send_from_directory
 from flask_cors import CORS
 from api import api

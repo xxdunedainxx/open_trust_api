@@ -80,4 +80,24 @@ CREATE TABLE test_crons(
     PRIMARY KEY(cron_id)
 )ENGINE=InnoDB;
 
+CREATE TABLE event (
+    event_id int NOT NULL AUTO_INCREMENT,
+    description TEXT,
+    when_created DATETIME,
+    active int DEFAULT 1,
+    event_status int,
+    impacted_componet varchar(333), # typically feature or service
+    when_closed DATETIME,
+    PRIMARY KEY(event_id)
+)ENGINE=InnoDB;
 
+CREATE TABLE event_comment(
+    comment_id int NOT NULL AUTO_INCREMENT,
+    comment TEXT,
+    when_created DATETIME,
+    event_id int NOT NULL,
+    PRIMARY KEY(comment_id)
+)ENGINE=InnoDB;
+
+# Need table for event
+# Need table for event comment
