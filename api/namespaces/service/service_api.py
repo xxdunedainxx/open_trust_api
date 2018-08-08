@@ -1,3 +1,6 @@
+# TODO :: Feature outages?
+# TODO :: Feature outage resolution? 
+
 from flask_restplus import Namespace, Resource
 from api.api_util.util import http_parse
 import api.api_util.ROUTER as ROUTER
@@ -66,12 +69,13 @@ class ServiceRouteAPI(Resource):
         validation_errors = service_validators.validateServiceDescription().validate({'description' : description})
         service=get_service_by_name(name,db)
 
-        new_service(name, description, db)
         if validation_errors:
             return {'message': validation_errors}, 400
         elif service != None:
             return {'message' : 'name already exists!'},406
         else:
+            new_service(name, description, db)
             return {'message' : 'service created!'},200
+
 
 

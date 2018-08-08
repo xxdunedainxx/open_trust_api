@@ -3,7 +3,7 @@ from api.api_util.util import http_parse
 import api.api_util.ROUTER as ROUTER
 from api.namespaces.feature.validation import feature_validators
 from conf.conf import db
-from data.models.feature import Feature, get_all_features,get_all_features_by_service_id,get_feature_by_id_and_service
+from data.models.feature import Feature, get_all_features,get_all_features_by_service_id,get_feature_by_id_and_service, reactivate_feature,deactivate_feature,change_feature_status, get_feature_by_name, new_feature
 from src.util.errorFactory.service_errors import ServiceDoesNotExist
 
 
@@ -37,3 +37,34 @@ class FeatureSpecificAPI(Resource):
         else:
             return {'message': f'Feature ID {feature_id} does not exist for service ID {service_id}'}, 404
 
+
+    @api.doc(responses={200: 'Success', 400: 'Invalid payload', 404: 'Feature ID does not exist'})
+    def patch(self, service_id, feature_id, updates):
+        feature = get_feature_by_id_and_service(service_id, feature_id, db)
+        if feature != None:
+            # TODO Stick in validation
+            if 'active' in updates.keys() and updates['active'] is True:
+                reactivate_feature(service_id,feature_id,db)
+            elif 'active' in updates.keys() and updates['active'] is False:
+                deactivate_feature(service_id,feature_id,db)
+            elif 'status' in updates.keys():
+                change_feature_status(service_id,feature_id,updates['status'],db)
+            else:
+                return {'message', 'invalid update flag'},400
+        else:
+            return {'message', f"{feature_id} feature does not exist"},404
+
+@api.route(ROUTER.FEATURE_ROUTE_BASE)
+class FeatureRouteAPI(Resource):
+    @api.doc(responses={200: 'Success', 400: 'Invalid payload', 404: 'ID already exists', 406 : 'name already exists'})
+    def post(self,service_id, name, description):
+        validation_errors = feature_validators.validateServiceDescription().validate({'description' : description})
+        service=get_feature_by_name(service_id,name,db)
+
+        if validation_errors:
+            return {'message': validation_errors}, 400
+        elif service != None:
+            return {'message' : 'name already exists!'},406
+        else:
+            new_feature(name, description, service_id, db)
+            return {'message' : 'service created!'},200
