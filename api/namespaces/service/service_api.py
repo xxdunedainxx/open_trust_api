@@ -13,7 +13,6 @@ api = Namespace('service', description='General API for Open Trust Service manag
 class AllServiceAPI(Resource):
     @api.doc(responses={200: 'Success',400 : 'Invalid payload', 404: 'No records?'})
     def get(self):
-        """Returns a google drive file by id query"""
         services=get_all_services(db)
 
         serialized_payload=[]

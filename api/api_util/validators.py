@@ -12,6 +12,10 @@ class Validators:
         pass
 
     @staticmethod
+    def validate_feature(feature_id):
+        pass
+
+    @staticmethod
     def validate_desciption(description):
         if len(description) > MAX_ALLOWED_DESCRIPTION:
             raise ValidationError("description longer than allowed length!")

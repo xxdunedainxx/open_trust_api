@@ -50,6 +50,15 @@ def get_feature_by_id(id, db):
 	else:
 		return None
 
+def get_feature_by_id_and_service(service_id,id, db):
+	get_feature=db.executeQuery("SELECT * FROM feature WHERE feature_id=%s AND parent_service=%s", paramatized=(id, service_id))
+
+	if get_feature != None:
+		return Feature(get_feature[0][0],get_feature[0][1],get_feature[0][2],get_feature[0][3],
+					   get_feature[0][4],get_feature[0][5],get_feature[0][6])
+	else:
+		return None
+
 def get_feature_by_name(service_id,name, db):
 	get_feature=db.executeQuery("SELECT * FROM feature WHERE name=%s AND parent_service=%s", paramatized=(name, service_id))
 

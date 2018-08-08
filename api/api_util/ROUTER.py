@@ -4,9 +4,9 @@ GET_ALL_SERVICES=f"{SERVICE_ROUTE_BASE}/list_services"
 GET_SPECIFIC_SERVICE=f"{SERVICE_ROUTE_BASE}/<int:service_id>"
 
 # Feature Routes
-FEATURE_ROUTE_BASE=f"{GET_SPECIFIC_SERVICE}/feature"
-GET_SPECIFIC_FEATURE=f"{FEATURE_ROUTE_BASE}/<int:service_id>"
-GET_ALL_FEATURES_BY_SERVICE=f"{FEATURE_ROUTE_BASE}/list_features"
+FEATURE_ROUTE_BASE=f"/<int:service_id>/feature"
+GET_SPECIFIC_FEATURE=f"/<int:service_id>/<int:feature_id>"
+GET_ALL_FEATURES_BY_SERVICE=f"/<int:service_id>/list_features"
 
 # Event Routes Service
 EVENT_ROUTE_BASE_SERVICE=f"{SERVICE_ROUTE_BASE}/event"
