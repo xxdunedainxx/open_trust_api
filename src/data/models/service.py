@@ -1,5 +1,5 @@
 from src.util.errorFactory.service_errors import ServiceNameAlreadyExists,ServiceDoesNotExist
-from data.models.feature import Feature, get_all_features_by_service_id,deactivate_feature,reactivate_feature
+from src.data.models.feature import Feature, get_all_features_by_service_id,deactivate_feature,reactivate_feature
 
 class Service:
 

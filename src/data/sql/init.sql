@@ -1,5 +1,4 @@
-
-# App config table 
+# App config table
 CREATE database open_trust_conf;
 # Users table - user / admin / owner
 CREATE TABLE user (

@@ -1,0 +1,15 @@
+{
+  "debug" : true,
+  "ENV" : "dev",
+  "title" : "Open Trust",
+  "version" : "1.0",
+  "description" : "Open Source Trust page",
+  "cors_enabled" : true,
+  "cors_resource_setting" :
+  {
+    "/api/v1/*" :
+                {
+                  "origins" : "http://localhost:4200"
+                }
+  }
+}
