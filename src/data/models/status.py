@@ -1,5 +1,5 @@
-from conf.conf import RESERVED_STATUS_NAMES
-from src.util.errorFactory.status_errors import StatusDoesNotExist
+from src.util.errorFactory.db.status_errors import StatusDoesNotExist
+
 class status:
 
     def __init__(self,status_id,name,when_created,sprite):

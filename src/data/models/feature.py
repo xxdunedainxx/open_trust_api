@@ -1,4 +1,4 @@
-from src.util.errorFactory.feature_errors import FeatureDoesNotExist,FeatureNameAlreadyExists
+from ...util.errorFactory.db.feature_errors import FeatureDoesNotExist,FeatureNameAlreadyExists
 
 class Feature:
 
