@@ -1,5 +1,5 @@
 {
-  "log_file" : ".\\log\\dump.log",
+  "log_file" : ".\\log\\service_api.log",
   "log_level" : "ALL",
   "logging_enabled" : true,
   "svc_name" : "API - Service Root - API Config Service",

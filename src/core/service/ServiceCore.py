@@ -19,8 +19,9 @@ class Service(IService):
 
 
     def _setup_service_logger(self):
-        self._log=LogFactory(file=self._service_config.log_file,
-                             log_level=self._service_config.log_level)
+        if self._service_config.logging_enabled:
+            self._log=LogFactory(file=self._service_config.log_file,
+                                 log_level=self._service_config.log_level)
 
     def service_output(self):
         if self._service_config.dev_mode_enabled:

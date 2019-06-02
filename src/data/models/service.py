@@ -28,6 +28,16 @@ class Service:
             'features' : serialize_features,
         }
 
+    @staticmethod
+    def supported_update_fields()->[]:
+        return [
+            "name",
+            "description",
+            "active",
+            "status"
+        ]
+
+
 def get_all_services(db):
     GET_ALL_SERVICES="SELECT * FROM service"
 
@@ -59,6 +69,11 @@ def get_service_by_name(name, db):
     else:
         return get_service
 
+def generic_service_update(values_to_update: [str] ,params: tuple,db):
+    db.executeQuery(
+        f"UPDATE service SET {db.update_set_helper(values_to_update)} WHERE service_id=%s",
+        paramatized=params
+    )
 def new_service(name, description, db):
 
     if get_service_by_name(name,db) == None:

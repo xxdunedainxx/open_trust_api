@@ -1,7 +1,7 @@
 {
   "log_file" : ".\\log\\dump.log",
   "log_level" : "ALL",
-  "logging_enabled" : true,
+  "logging_enabled" : false,
   "svc_name" : "API - Service Root - Routing Service",
   "svc_description" : "Contains Routing for Service Core API",
   "svc_namespace" : "src.core.service.api.service",
@@ -11,6 +11,7 @@
   "api_specific_resource" : "service",
   "supported_methods" : [
       "get",
-      "post"
+      "post",
+      "patch"
   ]
 }

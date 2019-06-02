@@ -38,3 +38,28 @@ class sql:
 
     def fetchItem(self):
         return self._cursor.fetchone()
+
+    def param_value_helper(self, params: tuple)->str:
+        rValues=""
+        i = 0
+        while i < len(params):
+            rValues+="%s"
+            if i != len(params) + 1:
+                rValues+=","
+            i+=1
+        return rValues
+
+    def update_set_helper(self,keys: [str]):
+        rValues=""
+        i = 0
+        while i < len(keys):
+            rValues+=f"{keys[i]}=%s"
+
+            i += 1
+
+            if i < len(keys):
+                rValues+=","
+            else:
+                rValues+=" "
+
+        return rValues

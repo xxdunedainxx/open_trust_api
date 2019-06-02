@@ -5,7 +5,8 @@ from ...conf.API.apis.APICoreConfig import APICoreConfig
 from ....util.api.validators.InternalAPIValidators import InternalAPIValidator
 from .IAPICore import IAPIArg
 from ....util.errorFactory.api.internal.ArgumentValidation import ArgumentRequired,InvalidArgumentProvideed
-
+from ....util.logging.LogFactory import LogFactory
+from ....util.api.decorators.http import http_logger
 # Flask framework imports
 from flask_restplus import Namespace, Resource
 from flask import request
@@ -24,15 +25,20 @@ class API(IAPI):
         self._supported_api_responses=[]
         self.namespace_object:Namespace=None
         self._service_config=apiConfig
+        self._setup_service_logger()
         super().__init__(
             apiConfig=apiConfig,
             services=services,
             inputValidation=inputValidation)
 
         self.api_validation=inputValidation
+
     #endregion
 
     #region Private Methods
+    def _setup_service_logger(self):
+        self.log=LogFactory(file=self._service_config.log_file,
+                             log_level=self._service_config.log_level)
 
     # Constructs a Flask Namespace object
     def _build_namespace(self)->None:
@@ -48,6 +54,15 @@ class API(IAPI):
     #endregion
 
     #region Pubic Methods
+    def payload_to_tuple_helper(self, payload: {})->tuple:
+        t = tuple()
+        for key in payload.keys():
+            p=payload[key]
+            t2=(p,)
+            t = t + t2
+        return t
+
+
     def validate_required_args(self,req: [APIArg], passed_args: {}):
         for required_arg in req:
             if passed_args is None or required_arg.arg not in passed_args.keys():
