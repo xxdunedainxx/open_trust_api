@@ -1,0 +1,16 @@
+{
+  "log_file" : ".\\log\\dump.log",
+  "log_level" : "ALL",
+  "logging_enabled" : true,
+  "svc_name" : "mysql svc",
+  "svc_description" : "",
+  "svc_namespace" : "src.core.service.helpers.db_client.mysql",
+  "authors" : ["zach.mcfadden"],
+  "last_update" : "11/30/2018",
+  "conf" : {
+    "user" : "root",
+    "password": "",
+    "host": "localhost",
+    "database": "open_trust_app"
+  }
+}

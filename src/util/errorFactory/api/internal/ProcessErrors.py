@@ -1,4 +1,4 @@
-from google_transfer1_0.core.util.errorFactory.api_errors.internal.CoreInternalError import InternalAPIError
+from .CoreInternalError import InternalAPIError
 
 class CouldNotFindTransferEvent(InternalAPIError):
     def __init__(self,tid):

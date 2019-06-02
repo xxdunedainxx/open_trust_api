@@ -3,12 +3,19 @@ from .IAPICore import IAPI
 from .routing.Router import Router
 from ...conf.API.apis.APICoreConfig import APICoreConfig
 from ....util.api.validators.InternalAPIValidators import InternalAPIValidator
-
+from .IAPICore import IAPIArg
+from ....util.errorFactory.api.internal.ArgumentValidation import ArgumentRequired,InvalidArgumentProvideed
 
 # Flask framework imports
 from flask_restplus import Namespace, Resource
 from flask import request
 
+class APIArg(IAPIArg):
+
+    def __init__(self, arg, dataType):
+        super().__init__(arg,dataType)
+        self.arg=arg
+        self.dataType=dataType
 
 class API(IAPI):
 
@@ -38,10 +45,21 @@ class API(IAPI):
                                   .api_config()
                                   .router_config())
 
-
     #endregion
 
     #region Pubic Methods
+    def validate_required_args(self,req: [APIArg], passed_args: {}):
+        for required_arg in req:
+            if passed_args is None or required_arg.arg not in passed_args.keys():
+                raise ArgumentRequired(
+                    arg=required_arg.arg
+                )
+            elif type(passed_args[required_arg.arg]) != required_arg.dataType:
+                raise InvalidArgumentProvideed(
+                    arg=required_arg.arg,
+                    expectedDataType=required_arg.dataType
+                )
+
     def api_config(self)->APICoreConfig:
         return self._service_config
 

@@ -5,11 +5,11 @@ from .....conf.ServiceConfig import ServiceConfig
 class MySQLClient(IDBClient):
 
     def __init__(self, conf: ServiceConfig, autoCommit=False):
-        if getattr(ServiceConfig, "conf") is None:
+        if getattr(conf, "conf") is None:
             raise Exception("MySQL Client required a \'conf\' section in the service config")
         else:
-            self._conf=ServiceConfig.conf
-        self._client: sql = self.connection(conf, autoCommit)
+            self._conf=conf.conf
+        self._client: sql = self.connection(self._conf, autoCommit)
 
     def connection(self, conf: {}, autoCommit: bool)->sql:
         return sql(

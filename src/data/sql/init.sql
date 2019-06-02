@@ -1,6 +1,7 @@
 # App config table
 CREATE database open_trust_conf;
 # Users table - user / admin / owner
+use open_trust_conf;
 CREATE TABLE user (
 	user_id int NOT NULL AUTO_INCREMENT,
 	when_created DATETIME,
@@ -43,11 +44,12 @@ CREATE TABLE feature(
     feature_id int NOT NULL AUTO_INCREMENT,
     name varchar(333),
     when_created DATETIME,
+    service_id int NOT NULL,
     parent_service int NOT NULL,
     description TEXT,
     active int DEFAULT 1,
     status int DEFAULT 1,
-    PRIMARY KEY(service_id)
+    PRIMARY KEY(feature_id)
 )ENGINE=InnoDB;
 
 CREATE TABLE status(

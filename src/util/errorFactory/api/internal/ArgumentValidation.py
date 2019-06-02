@@ -1,13 +1,13 @@
-from google_transfer1_0.core.util.errorFactory.api_errors.internal.CoreInternalError import InternalAPIError
+from .CoreInternalError import InternalAPIError
 
 class InvalidArgumentProvideed(InternalAPIError):
     def __init__(self,arg, expectedDataType):
         super().__init__(
-            message=f"{arg} data type not allowed for this API",
-            returnCode=404)
+            message=f"{arg} data type not allowed for this API. Expected {expectedDataType}",
+            returnCode=400)
 
-class TransferInactive(InternalAPIError):
-    def __init__(self,tid):
+class ArgumentRequired(InternalAPIError):
+    def __init__(self,arg):
         super().__init__(
-            message=f"{tid} is inactive",
-            returnCode=410 )
+            message=f"{arg} is required!",
+            returnCode=400)

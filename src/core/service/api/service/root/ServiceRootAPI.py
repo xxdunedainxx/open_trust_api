@@ -1,8 +1,11 @@
 
 #region General Framework imports
 from ....ServiceCore import Service
-from ...APICore import API
+from ...APICore import API,APIArg
 from .....conf.API.apis.APICoreConfig import APICoreConfig
+from ......util.errorFactory.api.internal.CoreInternalError import InternalAPIError, DEFAULT_INTERNAL_SERVER_ERROR
+from ......util.errorFactory.gen.general import errorStackTrace
+from ......util.errorFactory.db.service_errors import ServiceNameAlreadyExists
 from ...routing.Router import Router
 from ......util.api.validators.InternalAPIValidators import InternalAPIValidator
 #endregion
@@ -11,6 +14,7 @@ from ......util.api.decorators.http import http_logger
 #endregion
 #region Flask imorts
 # Flask framework imports
+from werkzeug.exceptions import BadRequest
 from flask_restplus import Namespace, Resource
 from flask import request
 #endregion
@@ -52,16 +56,53 @@ class ServiceRootAPI(API):
             @http_logger
             def get(self):
                 all_svcs=get_all_services(
-                    db=APIReference.db_client
+                    db=APIReference.db_client.fetch_client()
                 )
-                return {"message" : "test return data! API Works!"}
+                if len(all_svcs) == 0:
+                    return {'message' : 'no services yet...'},204
+
+                rServices=[]
+                for svc in all_svcs:
+                    rServices.append(
+                        svc.serialize()
+                    )
+                return {"service" : rServices},200
 
 
             @APIReference.namespace_object.doc(responses=APIReference.api_config().method_docs["post"])
             @APIReference.route_manager.route_check(method="post")
             @http_logger
             def post(self):
-                pass
+                try:
+                    payload=request.json
+
+                    APIReference.validate_required_args(
+                        req=[
+                            APIArg(
+                                arg="name",
+                                dataType=str
+                            ),
+                            APIArg(
+                                arg="description",
+                                dataType=str
+                            )
+                        ],
+                        passed_args=payload
+                    )
+                    new_service(
+                        name=payload["name"],
+                        description=payload["description"],
+                        db=APIReference.db_client.fetch_client()
+                    )
+                    return {'message' : 'service created!'},200
+                except InternalAPIError as e:
+                    return e.raise_error()
+                except ServiceNameAlreadyExists as e:
+                    return {'message' : f"Servicenae {payload['name']} already exists!"}, 409
+                except BadRequest as e:
+                    return {'message' : f"Bad request: {str(e)}"},400
+                except Exception as e:
+                    return DEFAULT_INTERNAL_SERVER_ERROR
 
             @APIReference.namespace_object.doc(responses=APIReference.api_config().method_docs["patch"])
             @APIReference.route_manager.route_check(method="patch")

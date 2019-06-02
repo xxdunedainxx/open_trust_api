@@ -7,8 +7,9 @@ from ....util.api.validators.InternalAPIValidators import InternalAPIValidator
 from flask_restplus import Namespace, Resource
 from flask import request
 
-
-
+class IAPIArg():
+    def __init__(self,arg,passedArg):
+        pass
 
 class IAPI(IService):
 
@@ -21,6 +22,8 @@ class IAPI(IService):
 
         self._build()
 
+    def validate_required_args(self,req: [IAPIArg], passed_args: {}):
+        pass
 
     #region Private Methods
     def _route(self):
