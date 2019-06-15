@@ -2,4 +2,5 @@ curl -X POST "http://127.0.0.1:5000/api/v1/service" -H "Content-Type: applicatio
 curl -X GET "http://127.0.0.1:5000/api/v1/service" -H "accept: application/json"
 curl -X GET "http://127.0.0.1:5000/api/v1/service" -H "accept: application/json"  -H "Content-Type: application/json" -d "{\"sid\": \"1\"}" -i
 curl -X GET "http://127.0.0.1:5000/api/v1/service" -H "accept: application/json"  -H "Content-Type: application/json" -d "{\"name\": \"test\"}" -i
-curl -X PATCH "http://127.0.0.1:5000/api/v1/service" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\": 1}" -i
+curl -X PATCH "http://127.0.0.1:5000/api/v1/service" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\": 1}" -i // failure example
+curl -X PATCH "http://127.0.0.1:5000/api/v1/service" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"id\": 1, \"name\": \"testupdatename\"}" -i

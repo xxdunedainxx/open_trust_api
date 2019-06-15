@@ -1,0 +1,17 @@
+{
+  "log_file" : ".\\log\\dump.log",
+  "log_level" : "ALL",
+  "logging_enabled" : false,
+  "svc_name" : "API - Feature Root - Routing Service",
+  "svc_description" : "Contains Routing for Feature Core API",
+  "svc_namespace" : "src.core.service.api.feature.root",
+  "authors" : ["zach.mcfadden"],
+  "last_update" : "6/1/19",
+  "core_route" : "api/v1",
+  "api_specific_resource" : "feature",
+  "supported_methods" : [
+      "get",
+      "post",
+      "patch"
+  ]
+}

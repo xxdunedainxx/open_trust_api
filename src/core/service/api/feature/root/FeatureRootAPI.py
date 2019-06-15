@@ -1,6 +1,3 @@
-#TODO : delete api
-#TODO : error handling for get / patch APIs
-
 #region General Framework imports
 from ....ServiceCore import Service
 from ...APICore import API,APIArg
@@ -23,16 +20,15 @@ from flask import request, copy_current_request_context
 #endregion
 #region DB Imports
 from ....helpers.db_client.IDBClient import IDBClient
-from ......data.models.service import get_all_services,new_service, get_service_by_id, get_service_by_name, generic_service_update,\
-    deactivate_service,ServiceDoesNotExist, Service as ServiceModel
+from ......data.models.feature import get_all_features, get_feature_by_id, get_feature_by_name, new_feature, FeatureNameAlreadyExists, Feature, generic_feature_update, deactivate_feature, FeatureDoesNotExist
 #endregion
 
 # Endpoint /api/service
-class ServiceRootAPI(API):
+class FeatureRootAPI(API):
 
     #region Constructor
     def __init__(self,apiConfig: APICoreConfig,services: [IDBClient],inputValidation: InternalAPIValidator=InternalAPIValidator()):
-        override_http_log_dir(".\\dump\\service.http.log")
+        override_http_log_dir(".\\dump\\feature.http.log")
         super().__init__(
             apiConfig=apiConfig,
             services=services,
@@ -53,7 +49,7 @@ class ServiceRootAPI(API):
     #region API Resource Builder
     # Builds out the Flask API Resource
     def build_api_resource(self)->Namespace:
-        APIReference: ServiceRootAPI = self
+        APIReference: FeatureRootAPI = self
 
         @APIReference.namespace_object.route(APIReference.api_config().resource_name)
         class API_Resource(Resource):
@@ -64,39 +60,32 @@ class ServiceRootAPI(API):
             def get(self):
 
                 # Grab specific service case
-                if request.json is not None and "sid" in request.json.keys():
-                    rService=get_service_by_id(
-                        id=request.json["sid"],
+                if request.json is not None and "fid" in request.json.keys():
+                    rFeature=get_feature_by_id(
+                        id=request.json["fid"],
                         db=APIReference.db_client.fetch_client()
                     )
-
-                    if rService is None:
-                        return {"message": "record not found"},404
-
-                    return rService.serialize(), 200
-                elif request.json is not None and "name" in request.json.keys():
-                    rService=get_service_by_name(
+                    return rFeature.serialize(), 200
+                elif request.json is not None and "name" in request.json.keys() and "sid" in request.json.keys():
+                    rFeature=get_feature_by_name(
+                        service_id=request.json["sid"],
                         name=request.json["name"],
                         db=APIReference.db_client.fetch_client()
                     )
+                    return rFeature.serialize(),200
 
-                    if rService is None:
-                        return {"message": "record not found"},404
-
-                    return rService.serialize(),200
-
-                all_svcs=get_all_services(
+                all_fts=get_all_features(
                     db=APIReference.db_client.fetch_client()
                 )
-                if len(all_svcs) == 0:
-                    return {'message' : 'no services yet...', "services" : []},200
+                if len(all_fts) == 0:
+                    return {'message' : 'no features yet...', "features": []}, 200
 
-                rServices=[]
-                for svc in all_svcs:
-                    rServices.append(
-                        svc.serialize()
+                rFeatures=[]
+                for ft in all_fts:
+                    rFeatures.append(
+                        ft.serialize()
                     )
-                return {"services" : rServices},200
+                return {"features" : rFeatures},200
 
 
             @APIReference.namespace_object.doc(responses=APIReference.api_config().method_docs["post"])
@@ -104,7 +93,7 @@ class ServiceRootAPI(API):
             @http_logger
             def post(self):
                 try:
-                    payload=request.json
+                    payload = request.json
 
                     APIReference.validate_required_args(
                         req=[
@@ -115,22 +104,28 @@ class ServiceRootAPI(API):
                             APIArg(
                                 arg="description",
                                 dataType=str
+                            ),
+                            APIArg(
+                                arg="parent",
+                                dataType=int
                             )
                         ],
                         passed_args=payload
                     )
-                    new_service(
+
+                    new_feature(
                         name=payload["name"],
                         description=payload["description"],
+                        parent=payload["parent"],
                         db=APIReference.db_client.fetch_client()
                     )
-                    return {'message' : 'service created!'},200
+                    return {'message': 'feature created!'}, 200
                 except InternalAPIError as e:
                     return e.raise_error()
-                except ServiceNameAlreadyExists as e:
-                    return {'message' : f"Servicenae {payload['name']} already exists!"}, 409
+                except FeatureNameAlreadyExists as e:
+                    return {'message': f"Feature name {payload['name']} already exists!"}, 409
                 except BadRequest as e:
-                    return {'message' : f"Bad request: {str(e)}"},400
+                    return {'message': f"Bad request: {str(e)}"}, 400
                 except Exception as e:
                     return DEFAULT_INTERNAL_SERVER_ERROR
 
@@ -138,43 +133,50 @@ class ServiceRootAPI(API):
             @APIReference.route_manager.route_check(method="patch")
             @http_logger
             def patch(self):
-                payload=request.json
+                payload = request.json
 
-                if payload is None or "id" not in payload.keys() or len(payload.keys()) <= 1:
-                    return PayloadMustExist(fields=str(ServiceModel.supported_update_fields()))
+                if ((payload is None) or ("id" not in payload.keys() or "parent" not in payload.keys())) \
+                        or len(payload.keys()) <= 2:
+                    return PayloadMustExist(fields=str(Feature.supported_update_fields()))
                 else:
-                    sid = payload.pop("id",None)
+                    fid = payload.pop("id", None)
+                    parent = payload.pop("parent", None)
 
                     # validate model has attribute to update
                     for key in payload.keys():
-                        if key in ServiceModel.supported_update_fields() is False:
+                        if key in Feature.supported_update_fields() is False:
                             raise ModelAttributeDoesNotExist()
 
-                    generic_service_update(
+                    generic_feature_update(
                         values_to_update=list(payload.keys()),
-                        params=(APIReference.payload_to_tuple_helper(payload) + (sid,)),
+                        params=(APIReference.payload_to_tuple_helper(payload) + (fid, parent,)),
                         db=APIReference.db_client.fetch_client()
                     )
 
-                    return {'message' : 'service updated!'},200
+                    return {'message': 'feature updated!'}, 200
 
             @APIReference.namespace_object.doc(responses=APIReference.api_config().method_docs["delete"])
             @APIReference.route_manager.route_check(method="delete")
             @http_logger
             def delete(self):
                 payload = request.json
-                if payload is None or "id" not in payload.keys() or len(payload.keys()) <= 1:
-                    return PayloadMustExist(fields=str(ServiceModel.supported_update_fields()))
 
-                sid = payload.pop("id", None)
+                if ((payload is None) or ("id" not in payload.keys() or "parent" not in payload.keys())) \
+                        or len(payload.keys()) <= 2:
+                    return PayloadMustExist(fields=str(Feature.supported_update_fields()))
+
+                else:
+                    fid = payload.pop("id", None)
+                    parent = payload.pop("parent", None)
 
                 try:
-                    deactivate_service(
-                        id=sid,
+                    deactivate_feature(
+                        service_id=parent,
+                        id=fid,
                         db=APIReference.db_client.fetch_client()
                     )
-                except ServiceDoesNotExist as e:
-                    return {'message': f"Service not found {sid}"}, 404
+                except FeatureDoesNotExist as e:
+                    return {'message': f"Feature not found {fid}, for service. {parent}"}, 404
                 except Exception as e:
                     return DEFAULT_INTERNAL_SERVER_ERROR
 

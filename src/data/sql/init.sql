@@ -44,7 +44,6 @@ CREATE TABLE feature(
     feature_id int NOT NULL AUTO_INCREMENT,
     name varchar(333),
     when_created DATETIME,
-    service_id int NOT NULL,
     parent_service int NOT NULL,
     description TEXT,
     active int DEFAULT 1,
@@ -92,11 +91,12 @@ CREATE TABLE event (
     PRIMARY KEY(event_id)
 )ENGINE=InnoDB;
 
-CREATE TABLE event_comment(
+CREATE TABLE comment(
     comment_id int NOT NULL AUTO_INCREMENT,
     comment TEXT,
     when_created DATETIME,
-    event_id int NOT NULL,
+    table_reference varchar(333),
+    tid int NOT NULL,
     PRIMARY KEY(comment_id)
 )ENGINE=InnoDB;
 

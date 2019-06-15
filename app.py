@@ -28,6 +28,7 @@ from src.core.service.api.root.conf.conf import conf as APIConfig
 from src.core.service.helpers.db_client.mysql.MySQLClient import  MySQLClient
 from src.core.conf.ServiceConfig import  ServiceConfig
 from src.core.service.api.service.root.ServiceRootAPI import ServiceRootAPI
+from src.core.service.api.feature.root.FeatureRootAPI import FeatureRootAPI
 db_config=ServiceConfig(file="./sql_client_config.json")
 db_config.initialize_config()
 mysql_db=MySQLClient(
@@ -45,9 +46,21 @@ api=ServiceRootAPI(
     apiConfig=conf,
     services=[mysql_db]
 )
+
+FRouterConfiguration=RouteConfig(file=".\\feature_core_route.json")
+FRouterConfiguration.initialize_config()
+fconf=APICoreConfig(
+    file=".\\feature_api_root.json",
+    routerConfig=FRouterConfiguration)
+fconf.initialize_config()
+fapi=FeatureRootAPI(
+    apiConfig=fconf,
+    services=[mysql_db]
+)
+
 app = BuildAPI(
     apiConfig=APIConfig,
-    apis=[api])
+    apis=[api,fapi])
 
 app.build()
 #features=get_all_features_by_service_id(1,db)

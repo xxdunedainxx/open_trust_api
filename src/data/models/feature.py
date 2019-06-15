@@ -1,3 +1,5 @@
+#TODO Detect feature colision
+
 from ...util.errorFactory.db.feature_errors import FeatureDoesNotExist,FeatureNameAlreadyExists
 
 class Feature:
@@ -22,11 +24,30 @@ class Feature:
 			'status' : self.status
 		}
 
+	@staticmethod
+	def supported_update_fields() -> []:
+		return [
+			"name",
+			"description",
+			"active",
+			"status",
+			"parent_service"
+		]
+
+def generic_feature_update(values_to_update: [str] ,params: tuple,db):
+    db.executeQuery(
+        f"UPDATE feature SET {db.update_set_helper(values_to_update)} WHERE feature_id=%s AND parent_service=%s",
+        paramatized=params
+    )
+
 def get_all_features(db):
 	GET_ALL_FEATURES="SELECT * FROM feature"
 
 	get_features=db.executeQuery(GET_ALL_FEATURES)
 	featureObjs=[]
+
+	if get_features is None:
+		return featureObjs
 
 	for feature in get_features:
 		featureObjs.append(Feature(feature[0],feature[1],feature[2],feature[3],feature[4],feature[5],feature[6]))

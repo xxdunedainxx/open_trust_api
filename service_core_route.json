@@ -12,6 +12,7 @@
   "supported_methods" : [
       "get",
       "post",
-      "patch"
+      "patch",
+     "delete"
   ]
 }

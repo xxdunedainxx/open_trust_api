@@ -1,0 +1,2 @@
+curl -X GET "http://127.0.0.1:5000/api/v1/feature" -H "accept: application/json" -i
+curl -X POST "http://127.0.0.1:5000/api/v1/feature" -H "Content-Type: application/json" -d "{\"name\": \"test\", \"description\":\"a description\", \"parent\":1}" -i
