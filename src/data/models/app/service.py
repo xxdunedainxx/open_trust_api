@@ -1,5 +1,6 @@
-from src.util.errorFactory.db.service_errors import ServiceNameAlreadyExists,ServiceDoesNotExist
-from src.data.models.app.feature import Feature
+from ....util.errorFactory.db.service_errors import ServiceNameAlreadyExists, ServiceDoesNotExist
+from .feature import Feature
+from ....core.service.helpers.db_client.IDBClient import IDBClient
 
 class Service:
 
@@ -38,7 +39,7 @@ class Service:
         ]
 
     @staticmethod
-    def get_all_services(db)->[]:
+    def get_all_services(db: IDBClient)->[]:
         GET_ALL_SERVICES="SELECT * FROM service"
 
 
@@ -55,7 +56,7 @@ class Service:
         return serviceObjs
 
     @staticmethod
-    def get_service_by_id(id, db):
+    def get_service_by_id(id,  db: IDBClient):
         get_service=db.executeQuery("SELECT * FROM service WHERE service_id=%s", paramatized=(id))
 
         if get_service is not None:
@@ -63,7 +64,7 @@ class Service:
         else:
             return get_service
     @staticmethod
-    def get_service_by_name(name, db):
+    def get_service_by_name(name,  db: IDBClient):
         get_service=db.executeQuery("SELECT * FROM service WHERE name=%s", paramatized=(name))
         if get_service is not None:
             return Service(get_service[0][0], get_service[0][1], get_service[0][2], get_service[0][3], get_service[0][4], get_service[0][5], Feature.get_all_features_by_service_id(get_service[0][0],db))
@@ -71,14 +72,14 @@ class Service:
             return get_service
 
     @staticmethod
-    def generic_service_update(values_to_update: [str] ,params: tuple,db):
+    def generic_service_update(values_to_update: [str] ,params: tuple, db: IDBClient):
         db.executeQuery(
             f"UPDATE service SET {db.update_set_helper(values_to_update)} WHERE service_id=%s",
             paramatized=params
         )
 
     @staticmethod
-    def new_service(name, description, db):
+    def new_service(name, description,  db: IDBClient):
 
         if Service.get_service_by_name(name,db) is None:
             CREATE_FEATURE="INSERT INTO service (name, when_created,description) VALUES (%s ,now(),%s)"
@@ -90,7 +91,7 @@ class Service:
 
     @staticmethod
     # TODO :: update child features
-    def deactivate_service(id, db):
+    def deactivate_service(id,  db: IDBClient):
 
         if Service.get_service_by_id(id, db) is not None:
             features=Feature.get_all_features_by_service_id(id,db)
@@ -104,7 +105,7 @@ class Service:
 
     @staticmethod
     # TODO :: handle re-activate non active service
-    def reactivate_service(id, db):
+    def reactivate_service(id,  db: IDBClient):
 
         if Service.get_service_by_id(id, db) is not None:
             features=Feature.get_all_features_by_service_id(id,db)
@@ -117,7 +118,7 @@ class Service:
             raise ServiceDoesNotExist(f"{id} does not exist")
     @staticmethod
     # TODO :: error handling for service update on de-activated service
-    def change_service_status(id, status,db):
+    def change_service_status(id, status,  db: IDBClient):
         if Service.get_service_by_id(id, db) is not None:
             db.executeQuery("UPDATE service SET status=%s WHERE service_id=%s", paramatized=(status, id))
         else:

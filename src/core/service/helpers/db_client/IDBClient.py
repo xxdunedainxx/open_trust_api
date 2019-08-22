@@ -12,7 +12,7 @@ class IDBClient(Helper):
     def kill_connection(self, *args):
         pass
 
-    def executeQuery(self,query, *args):
+    def executeQuery(self,query, *kwargs):
         pass
 
     def fetch_client(self):

@@ -4,7 +4,8 @@ class Status:
     reserved_status_values = {
         "Online": 1,
         "Outage": 2,
-        "Maintenance": 3
+        "Complete Outage": 3,
+        "Maintenance": 4
     }
 
     def __init__(self,status_id,name,when_created,sprite):
