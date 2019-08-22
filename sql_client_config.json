@@ -9,7 +9,7 @@
   "last_update" : "11/30/2018",
   "conf" : {
     "user" : "root",
-    "password": "",
+    "password": "test",
     "host": "localhost",
     "database": "open_trust_app"
   }

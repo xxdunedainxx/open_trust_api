@@ -1,4 +1,4 @@
-class StatusDoesNotExist(Exception):
-    def __init__(self, message):
+class InvalidStatus(Exception):
+    def __init__(self, status):
 
-        super().__init__(message)
+        super().__init__(f"Status {str(status)}, does not exist!")

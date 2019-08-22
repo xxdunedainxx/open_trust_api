@@ -1,6 +1,7 @@
-# TODO :: finish service APIs/  feature APIs / status APIs
 # TODO :: Once these apis are complete, MVP for client can begin
 # TODO :: EVENT MODEL / EVENT COMMENT MODEL
+# TODO :: STATUS MODEL / API
+# TODO :: finish event APIs / status APIs
 
 """
 from ...basicTestAPI.conf.api.conf import conf as APIConfig

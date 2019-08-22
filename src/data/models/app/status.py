@@ -1,6 +1,11 @@
-from src.util.errorFactory.db.status_errors import StatusDoesNotExist
+from src.util.errorFactory.db.status_errors import InvalidStatus
 
-class status:
+class Status:
+    reserved_status_values = {
+        "Online": 1,
+        "Outage": 2,
+        "Maintenance": 3
+    }
 
     def __init__(self,status_id,name,when_created,sprite):
         self.id=status_id
@@ -22,7 +27,7 @@ def serve_sprite_path(id,db):
     if get_sprite != None:
         return get_sprite[0][0]
     else:
-        raise StatusDoesNotExist(f"{id} does not exist")
+        raise InvalidStatus(f"{id} does not exist")
 
 
 # TODO :: SCAN FILE MAKE SURE NOT MALICIOUS

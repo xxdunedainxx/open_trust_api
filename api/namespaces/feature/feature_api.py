@@ -2,7 +2,7 @@ from flask_restplus import Namespace, Resource
 import api.api_util.ROUTER as ROUTER
 from api.namespaces.feature.validation import feature_validators
 from conf.conf import db
-from src.data.models.feature import get_all_features_by_service_id,get_feature_by_id_and_service, reactivate_feature,deactivate_feature,change_feature_status, get_feature_by_name, new_feature
+from src.data.models.app.feature import get_all_features_by_service_id,get_feature_by_id_and_service, reactivate_feature,deactivate_feature,change_feature_status, get_feature_by_name, new_feature
 
 api = Namespace('feature', description='General API for Open Trust Feature management.')
 

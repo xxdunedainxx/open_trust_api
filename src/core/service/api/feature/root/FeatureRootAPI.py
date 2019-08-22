@@ -1,12 +1,9 @@
 #region General Framework imports
-from ....ServiceCore import Service
 from ...APICore import API,APIArg
 from .....conf.API.apis.APICoreConfig import APICoreConfig
 from ......util.errorFactory.db.general import ModelAttributeDoesNotExist
-from ......util.errorFactory.api.internal.CoreInternalError import InternalAPIError, DEFAULT_INTERNAL_SERVER_ERROR, PayloadMustExist
 from ......util.errorFactory.gen.general import errorStackTrace
-from ......util.errorFactory.db.service_errors import ServiceNameAlreadyExists
-from ...routing.Router import Router
+from ......util.errorFactory.api.internal.CoreInternalError import InternalAPIError, DEFAULT_INTERNAL_SERVER_ERROR, PayloadMustExist
 from ......util.api.validators.InternalAPIValidators import InternalAPIValidator
 #endregion
 #region Decorators
@@ -16,14 +13,14 @@ from ......util.api.decorators.http import http_logger, override_http_log_dir
 # Flask framework imports
 from werkzeug.exceptions import BadRequest
 from flask_restplus import Namespace, Resource
-from flask import request, copy_current_request_context
+from flask import request
 #endregion
 #region DB Imports
 from ....helpers.db_client.IDBClient import IDBClient
-from ......data.models.feature import get_all_features, get_feature_by_id, get_feature_by_name, new_feature, FeatureNameAlreadyExists, Feature, generic_feature_update, deactivate_feature, FeatureDoesNotExist
+from src.data.models.app.feature import  FeatureNameAlreadyExists, Feature,  FeatureDoesNotExist
 #endregion
-
 # Endpoint /api/service
+#region FeatureRootAPI
 class FeatureRootAPI(API):
 
     #region Constructor
@@ -58,34 +55,39 @@ class FeatureRootAPI(API):
             @APIReference.route_manager.route_check(method="get")
             @http_logger
             def get(self):
+                try:
+                    # Grab specific service case
+                    if request.json is not None and "fid" in request.json.keys():
+                        rFeature=Feature.get_feature_by_id(
+                            id=request.json["fid"],
+                            db=APIReference.db_client.fetch_client()
+                        )
+                        return rFeature.serialize(), 200
+                    elif request.json is not None and "name" in request.json.keys() and "sid" in request.json.keys():
+                        rFeature=Feature.get_feature_by_name(
+                            service_id=request.json["sid"],
+                            name=request.json["name"],
+                            db=APIReference.db_client.fetch_client()
+                        )
+                        return rFeature.serialize(),200
 
-                # Grab specific service case
-                if request.json is not None and "fid" in request.json.keys():
-                    rFeature=get_feature_by_id(
-                        id=request.json["fid"],
+                    all_fts=Feature.get_all_features(
                         db=APIReference.db_client.fetch_client()
                     )
-                    return rFeature.serialize(), 200
-                elif request.json is not None and "name" in request.json.keys() and "sid" in request.json.keys():
-                    rFeature=get_feature_by_name(
-                        service_id=request.json["sid"],
-                        name=request.json["name"],
-                        db=APIReference.db_client.fetch_client()
-                    )
-                    return rFeature.serialize(),200
+                    if len(all_fts) == 0:
+                        return {'message' : 'no features yet...', "features": []}, 404
 
-                all_fts=get_all_features(
-                    db=APIReference.db_client.fetch_client()
-                )
-                if len(all_fts) == 0:
-                    return {'message' : 'no features yet...', "features": []}, 200
-
-                rFeatures=[]
-                for ft in all_fts:
-                    rFeatures.append(
-                        ft.serialize()
+                    rFeatures=[]
+                    for ft in all_fts:
+                        rFeatures.append(
+                            ft.serialize()
+                        )
+                    return {"features" : rFeatures},200
+                except Exception as e:
+                    APIReference.log.write_log(
+                        data=f"FeatureRootAPI error: {errorStackTrace(e)}"
                     )
-                return {"features" : rFeatures},200
+                    return DEFAULT_INTERNAL_SERVER_ERROR
 
 
             @APIReference.namespace_object.doc(responses=APIReference.api_config().method_docs["post"])
@@ -113,7 +115,7 @@ class FeatureRootAPI(API):
                         passed_args=payload
                     )
 
-                    new_feature(
+                    Feature.new_feature(
                         name=payload["name"],
                         description=payload["description"],
                         parent=payload["parent"],
@@ -127,54 +129,63 @@ class FeatureRootAPI(API):
                 except BadRequest as e:
                     return {'message': f"Bad request: {str(e)}"}, 400
                 except Exception as e:
+                    APIReference.log.write_log(
+                        data=f"FeatureRootAPI error: {errorStackTrace(e)}"
+                    )
                     return DEFAULT_INTERNAL_SERVER_ERROR
 
             @APIReference.namespace_object.doc(responses=APIReference.api_config().method_docs["patch"])
             @APIReference.route_manager.route_check(method="patch")
             @http_logger
             def patch(self):
-                payload = request.json
+                try:
+                    payload = request.json
 
-                if ((payload is None) or ("id" not in payload.keys() or "parent" not in payload.keys())) \
-                        or len(payload.keys()) <= 2:
-                    return PayloadMustExist(fields=str(Feature.supported_update_fields()))
-                else:
-                    fid = payload.pop("id", None)
-                    parent = payload.pop("parent", None)
+                    if ((payload is None) or ("id" not in payload.keys() or "parent" not in payload.keys())) \
+                            or len(payload.keys()) <= 2:
+                        return PayloadMustExist(fields=str(Feature.supported_update_fields()))
+                    else:
+                        fid = payload.pop("id", None)
+                        parent = payload.pop("parent", None)
 
-                    # validate model has attribute to update
-                    for key in payload.keys():
-                        if key in Feature.supported_update_fields() is False:
-                            raise ModelAttributeDoesNotExist()
+                        # validate model has attribute to update
+                        for key in payload.keys():
+                            if key in Feature.supported_update_fields() is False:
+                                raise ModelAttributeDoesNotExist()
 
-                    generic_feature_update(
-                        values_to_update=list(payload.keys()),
-                        params=(APIReference.payload_to_tuple_helper(payload) + (fid, parent,)),
-                        db=APIReference.db_client.fetch_client()
+                        Feature.generic_feature_update(
+                            values_to_update=list(payload.keys()),
+                            params=(APIReference.payload_to_tuple_helper(payload) + (fid, parent,)),
+                            db=APIReference.db_client.fetch_client()
+                        )
+
+                        return {'message': 'feature updated!'}, 200
+                except Exception as e:
+                    APIReference.log.write_log(
+                        data=f"FeatureRootAPI error: {errorStackTrace(e)}"
                     )
-
-                    return {'message': 'feature updated!'}, 200
+                    return DEFAULT_INTERNAL_SERVER_ERROR
 
             @APIReference.namespace_object.doc(responses=APIReference.api_config().method_docs["delete"])
             @APIReference.route_manager.route_check(method="delete")
             @http_logger
             def delete(self):
-                payload = request.json
-
-                if ((payload is None) or ("id" not in payload.keys() or "parent" not in payload.keys())) \
-                        or len(payload.keys()) <= 2:
-                    return PayloadMustExist(fields=str(Feature.supported_update_fields()))
-
-                else:
-                    fid = payload.pop("id", None)
-                    parent = payload.pop("parent", None)
-
                 try:
-                    deactivate_feature(
-                        service_id=parent,
-                        id=fid,
-                        db=APIReference.db_client.fetch_client()
-                    )
+                    payload = request.json
+
+                    if ((payload is None) or ("id" not in payload.keys() or "parent" not in payload.keys())) \
+                            or len(payload.keys()) <= 2:
+                        return PayloadMustExist(fields=str(Feature.supported_update_fields()))
+
+                    else:
+                        fid = payload.pop("id", None)
+                        parent = payload.pop("parent", None)
+
+                        Feature.deactivate_feature(
+                            service_id=parent,
+                            id=fid,
+                            db=APIReference.db_client.fetch_client()
+                        )
                 except FeatureDoesNotExist as e:
                     return {'message': f"Feature not found {fid}, for service. {parent}"}, 404
                 except Exception as e:
@@ -182,3 +193,4 @@ class FeatureRootAPI(API):
 
         return APIReference.namespace_object
     #endregion
+#endregion

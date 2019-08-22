@@ -86,7 +86,8 @@ CREATE TABLE event (
     when_created DATETIME,
     active int DEFAULT 1,
     event_status int,
-    impacted_componet varchar(333), # typically feature or service
+    feature_id int,
+    service_id int,
     when_closed DATETIME,
     PRIMARY KEY(event_id)
 )ENGINE=InnoDB;
